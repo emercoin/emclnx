@@ -1,0 +1,13 @@
+This is JS-layer over the user_page.php.
+
+Experimental and raw code.
+
+Common idea - to protect links to lnx_ref from robot clicks, using generate these links over JS.
+
+Mechanism:
+
+1. html-page reclama.html contains examples of ads show forms, and inclides JS-header (reclama.js).
+Each form calls load() function, which fetch URL from reclama.php (unchanged copy of demo user_page.php), 
+and insert into current web-page.
+
+
