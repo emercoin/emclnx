@@ -101,6 +101,9 @@ return [
   // Connection temperature theshold
   'max_temp'	=> 451,
 
+  // Referer temperature theshold
+  'max_ref_temp'	=> 200,
+
 //--------------------------------------------------------------
 // DON'T CHANGE these values, otherwise you'll lost 
 // compatibility with peers

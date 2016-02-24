@@ -128,7 +128,7 @@ function emcLNX_lnx_ref($conref, $ip) {
         $pay_req = ($credit < -$data[1] - 0.01)? 0 : $data[1];
         $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now() where ref_id=?");
         $stmt->execute(array($pay_req, $temp, $ref_id));
-        if($temp > $conf['IPTreshold'] * 0.6)
+        if($temp > $conf['max_ref_temp'])
           throw new Exception("temperasture theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
       }
     }
