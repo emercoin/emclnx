@@ -33,7 +33,7 @@ function emcLNX_lnx_pay($invoice, $ip, $quality) {
   $lnxIPTreshold = $conf['IPTreshold'];
 
   try {
-    list($nvs_key, $pay_addr, $pay_this, $balance, $credit) = preg_split('/:/', $invoice, 5);
+    list($nvs_key, $pay_addr, $pay_this, $balance, $credit, $cpa_addr) = preg_split('/:/', $invoice, 6);
 
     if(!isset($credit))
       throw new Exception("Wrong invoice syntax\n");
@@ -50,6 +50,9 @@ function emcLNX_lnx_pay($invoice, $ip, $quality) {
     $cpc = $cpc_row[0]['cpc'];
     if(!empty($cpc_row[0]['dest_url']))
       $dest_url = $cpc_row[0]['dest_url'];
+
+    // Attach CPA address, if needed and exist
+    $dest_url = preg_replace('/\$CPA_ADDR/', $cpa_addr, $dest_url);
 
     $stmt = $dbh->prepare("Update payer_contracts Set visit_cnt = visit_cnt + 1 where nvs_key=?");
     $stmt->execute(array($nvs_key));

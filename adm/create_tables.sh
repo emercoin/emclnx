@@ -60,6 +60,7 @@ MYSQL_PWD=12345 /usr/bin/mysql -u emclnx <<EOF
 
   Create table hoster_shares (
     ref_id	char(31),
+    cpa_addr    char(35) NOT NULL,
     req_sent    float NOT NULL default 0,
     temperature	float NOT NULL default 0,
     last_event	timestamp NOT NULL default '2000-01-01 00:00:00',

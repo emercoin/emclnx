@@ -117,21 +117,29 @@ function emcLNX_lnx_ref($conref, $ip) {
     // Extract paid, and compute credit
     $paid = $lnx->emcLNX__req('getreceivedbyaddress', array($data[0], 0));
     $credit = $paid + $lnx->emcLNX__compute_allowance($paid) - $data[2];
+    $cpa_addr = ""; // No CPA address by default
 
     if(!empty($ref_id)) {
-      $stmt = $dbh->prepare("Select temperature, TIME_TO_SEC(TIMEDIFF(NOW(), last_event)) as dt from hoster_shares where ref_id=? for update");
+      $stmt = $dbh->prepare("Select temperature, TIME_TO_SEC(TIMEDIFF(NOW(), last_event)) as dt, cpa_addr from hoster_shares where ref_id=? for update");
       $stmt->execute(array($ref_id));
       $ref_row = $stmt->fetchAll(PDO::FETCH_ASSOC);
       if(sizeof($ref_row)) {
         $dt   = $ref_row[0]['dt'];
         $temp = $ref_row[0]['temperature'] * exp(-$dt / $conf['RatingTAU']) + (($data[1] > 0)? 1 : 0);
         $pay_req = ($credit < -$data[1] - 0.01)? 0 : $data[1];
-        $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now() where ref_id=?");
-        $stmt->execute(array($pay_req, $temp, $ref_id));
+        $cpa_addr = $ref_row[0]['cpa_addr'];
+        if(empty($cpa_addr)) {
+          $cpa_addr = $lnx->emcLNX__req('getnewaddress', array($conf['wallet']['account']));
+          $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now(), cpa_addr=? where ref_id=?");
+          $stmt->execute(array($pay_req, $temp, $ref_id, $cpa_addr));
+	} else {
+          $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now() where ref_id=?");
+          $stmt->execute(array($pay_req, $temp, $ref_id));
+	}
         if($temp > $conf['max_ref_temp'])
           throw new Exception("temperasture theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
       }
-    }
+    } // if(!empty($ref_id)) 
 
     $data[2] -= $paid; // Net balance for this advertiser: (req_sent - payment_received)
 
@@ -142,9 +150,11 @@ function emcLNX_lnx_ref($conref, $ip) {
       // echo "Debug mode, DB is not changed\n";
     }
     // - for testing ---  $dbh->rollBack();
-    // format: Pay_addr:this_amount:balance:allowance_credit
-    return $row_contract['URL'][0] . $nvs_key . ':'. join(':', $data) . sprintf(":%.2f", $credit);
-
+    // format: Pay_addr:this_amount:balance:allowance_credit [:CPA_ADDRESS]
+    $rc = $row_contract['URL'][0] . $nvs_key . ':'. join(':', $data) . sprintf(":%.2f", $credit);
+    if(!empty($cpa_addr)) 
+      $rc .= ':' . $cpa_addr;
+    return $rc;
   } catch(Exception $ex) {
     echo "emcLNX_lnx_ref error: ". $ex->getMessage() . "\n";
     $lnx->Log("\tlnx_ref ERR:\t" . $ex->getMessage());
