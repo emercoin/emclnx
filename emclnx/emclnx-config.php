@@ -51,7 +51,7 @@ return [
   ],
 
   // Minimal contract value (CPC)
-  'min_cpc'	=> 0.05,
+  'min_cpc'	=> 0.02,
 
   // Referer URL location
   'ref_url'	=> "/emclnx/lnx_ref.php?",
