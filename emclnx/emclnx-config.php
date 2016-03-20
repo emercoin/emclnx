@@ -1,7 +1,7 @@
 <?php
 return [
 //--------------------------------------------------------------
-// EMCLNX - EmerCoin Link Exchange system
+// EMCLNX - EmerCoin Link Exchange system version=0.0.6
 // Distributed under BSD license
 // https://en.wikipedia.org/wiki/BSD_licenses
 // Designed by maxihatop, EmerCoin group
@@ -86,9 +86,9 @@ return [
   'rand_offset' => 0.25,
 
   // Maximal attempts number for extract rand_href
-  'max_attempts' => 45,
+  'max_attempts' => 50,
 
-  // Max credit allowance for advertisers, EMC ($10)
+  // Max credit allowance for advertisers, EMC ($100)
   'max_credit'	=> 500.0,
 
   // Sigmoid for allowance constant
@@ -96,13 +96,13 @@ return [
   'credit_sigma' => 5000.0,
 
   // Extra allowance to pay - for possible desynch rating
-  'cpc_extra'	=> 0.04,
+  'cpc_extra'	=> 0.02,
 
   // Connection temperature theshold
-  'max_temp'	=> 451,
+  'max_temp'	=> 1000,
 
   // Referer temperature theshold
-  'max_ref_temp'	=> 200,
+  'max_ref_temp'	=> 500,
 
 //--------------------------------------------------------------
 // DON'T CHANGE these values, otherwise you'll lost 
