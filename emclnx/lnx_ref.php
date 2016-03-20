@@ -137,7 +137,7 @@ function emcLNX_lnx_ref($conref, $ip) {
           $stmt->execute(array($pay_req, $temp, $ref_id));
 	}
         if($temp > $conf['max_ref_temp'])
-          throw new Exception("temperasture theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
+          throw new Exception("temperature theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
       }
     } // if(!empty($ref_id)) 
 
