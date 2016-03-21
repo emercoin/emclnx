@@ -136,8 +136,10 @@ function emcLNX_lnx_ref($conref, $ip) {
           $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now() where ref_id=?");
           $stmt->execute(array($pay_req, $temp, $ref_id));
 	}
-        if($temp > $conf['max_ref_temp'])
-          throw new Exception("Temperature theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
+	if($temp > $conf['max_ref_temp']) {
+	  $dbh->commit(); // Increase temperature anyway
+	  throw new Exception("Temperature theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
+	}
       }
     } // if(!empty($ref_id)) 
 
