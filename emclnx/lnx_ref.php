@@ -138,6 +138,7 @@ function emcLNX_lnx_ref($conref, $ip) {
 	}
 	if($temp > $conf['max_ref_temp']) {
 	  $dbh->commit(); // Increase temperature anyway
+	  $data = 0; // No rollback or delete contract from DB
 	  throw new Exception("Temperature theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
 	}
       }
@@ -160,10 +161,11 @@ function emcLNX_lnx_ref($conref, $ip) {
   } catch(Exception $ex) {
     echo "emcLNX_lnx_ref error: ". $ex->getMessage() . "\n";
     $lnx->Log("\tlnx_ref ERR:\t" . $ex->getMessage());
-    if($data) // transaction was started in emcLNX__updRating successfully
+    if($data) { // transaction was started in emcLNX__updRating successfully
       $dbh->rollBack();
-    $stmt = $dbh->prepare("Delete from hoster_contracts where nvs_key=?");
-    $stmt->execute(array($nvs_key));
+      $stmt = $dbh->prepare("Delete from hoster_contracts where nvs_key=?");
+      $stmt->execute(array($nvs_key));
+    }
     return 0;
   }
 } // function rand_href
