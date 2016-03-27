@@ -131,7 +131,7 @@ function emcLNX_lnx_ref($conref, $ip) {
         if(empty($cpa_addr)) {
           $cpa_addr = $lnx->emcLNX__req('getnewaddress', array($conf['wallet']['account']));
           $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now(), cpa_addr=? where ref_id=?");
-          $stmt->execute(array($pay_req, $temp, $ref_id, $cpa_addr));
+          $stmt->execute(array($pay_req, $temp, $cpa_addr, $ref_id));
 	} else {
           $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now() where ref_id=?");
           $stmt->execute(array($pay_req, $temp, $ref_id));
