@@ -179,11 +179,8 @@ class emcLNX {
     $lang = $tokens['LANG'][0];
 
     // Add weight from the language
-    if(!empty($lnxLANGS)) {
-      if(!array_key_exists($lang, $lnxLANGS))
-      return 0; // We do not support this language
-      $rw += $lnxLANGS[$lang];
-    }
+    if(!empty($lnxLANGS)) 
+      $rw += $lnxLANGS[array_key_exists($lang, $lnxLANGS)? $lang : 'default'];
 
     // Adjust raw weight with keywords
     $txt_lines = sizeof($tokens['TXT']);

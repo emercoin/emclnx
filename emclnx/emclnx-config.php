@@ -40,7 +40,8 @@ return [
   'langs' => [
     'EN'	=>	40,
     'RU'	=>	10,
-    'JP' 	=>	-20
+    'JP' 	=>	-10,
+    'default'	=>	-50
   ],
 
   // Accepted country spec
