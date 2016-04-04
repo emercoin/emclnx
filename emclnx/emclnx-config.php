@@ -44,11 +44,11 @@ return [
     'default'	=>	-50
   ],
 
-  // Accepted country spec
-  // If you would like ignory country filter, set lnxCOUNTRY empty
+  // Accepted country filter. By default, allow any
+  // If you would like activate country filter, add country code here
   'country' => [
-    'EN'	=>	1,
-    'RU'	=>	0
+//    'EN'	=>	1,
+//    'RU'	=>	1
   ],
 
   // Minimal contract value (CPC)
