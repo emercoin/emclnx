@@ -58,11 +58,14 @@ class emcLNX {
       'id' => '1'
     ));
     // Prepare and performs the HTTP POST
-    $opts = array ('http' => array (
-      'method'  => 'POST',
-      'header'  => 'Content-type: application/json',
-      'content' => $request
-    ));
+    $opts = array (
+	'http' => array (
+		'method'  => 'POST',
+		'header'  => 'Content-type: application/json',
+		'content' => $request
+	),
+	'ssl'  => $this->config['ssl']
+    );
     $fp = fopen($this->config['wallet']['url'], 'rb', false, stream_context_create($opts));
     if(!$fp)
       throw new Exception('emcLNX__req: Unable to connect to EMC-wallet');

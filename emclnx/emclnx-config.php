@@ -19,6 +19,13 @@ return [
     'account'	=> "emcLNX"
   ],
 
+  // Wallet SSL connection params, if used https above
+  'ssl'     => [
+    // 'cafile'		=> ""
+    'verify_peer'	=> false,
+    'verify_peer_name'	=> false
+  ],
+
   // MySQL db connection params
   'db'     => [
     'db_host'	=> "mysql:host=localhost",
