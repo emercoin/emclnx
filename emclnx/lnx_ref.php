@@ -137,6 +137,11 @@ function emcLNX_lnx_ref($conref, $ip) {
           $stmt->execute(array($pay_req, $temp, $ref_id));
 	}
 	if($temp > $conf['max_ref_temp']) {
+          if($data[1] > 0) {
+            // Before update temp, needed restore req_sent back, increased in the emcLNX__updRating
+            $stmt = $dbh->prepare("Update hoster_hosts Set req_sent=req_sent-? where host=?");
+            $stmt->execute(array($data[1], $host));
+          }
 	  $dbh->commit(); // Increase temperature anyway
 	  $data = 0; // No rollback or delete contract from DB
 	  throw new Exception("Temperature theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
