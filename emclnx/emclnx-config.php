@@ -110,7 +110,7 @@ return [
   'max_temp'	=> 1000,
 
   // Referer temperature theshold
-  'max_ref_temp'	=> 500,
+  'max_ref_temp'	=> 100,
 
 //--------------------------------------------------------------
 // DON'T CHANGE these values, otherwise you'll lost 

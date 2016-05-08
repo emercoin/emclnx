@@ -126,6 +126,15 @@ function emcLNX_lnx_ref($conref, $ip) {
       if(sizeof($ref_row)) {
         $dt   = $ref_row[0]['dt'];
         $temp = $ref_row[0]['temperature'] * exp(-$dt / $conf['RatingTAU']) + (($data[1] > 0)? 1 : 0);
+
+	if($temp > $conf['max_ref_temp'] && $data[1] > 0) {
+          // Before update temp, needed restore req_sent back, increased in the emcLNX__updRating
+	  // And set zero-payment request for over-heat link
+          $stmt = $dbh->prepare("Update hoster_hosts Set req_sent=req_sent-? where host=?");
+          $stmt->execute(array($data[1], $host));
+	  $data[2] -= $data[1]; $data[1] = 0;
+	}
+
         $pay_req = ($credit < -$data[1] - 0.01)? 0 : $data[1];
         $cpa_addr = $ref_row[0]['cpa_addr'];
         if(empty($cpa_addr)) {
@@ -135,16 +144,6 @@ function emcLNX_lnx_ref($conref, $ip) {
 	} else {
           $stmt = $dbh->prepare("Update hoster_shares Set req_sent=req_sent+?, temperature=?, last_event=Now() where ref_id=?");
           $stmt->execute(array($pay_req, $temp, $ref_id));
-	}
-	if($temp > $conf['max_ref_temp']) {
-          if($data[1] > 0) {
-            // Before update temp, needed restore req_sent back, increased in the emcLNX__updRating
-            $stmt = $dbh->prepare("Update hoster_hosts Set req_sent=req_sent-? where host=?");
-            $stmt->execute(array($data[1], $host));
-          }
-	  $dbh->commit(); // Increase temperature anyway
-	  $data = 0; // No rollback or delete contract from DB
-	  throw new Exception("Temperature theshold reached for ref_id: $ref_id"); // Seems like fraudster activity
 	}
       }
     } // if(!empty($ref_id)) 
