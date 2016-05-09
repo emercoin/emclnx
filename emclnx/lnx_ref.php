@@ -28,7 +28,8 @@ function emcLNX__updRating($host, $cpc, $routemp)  {
     $temp     = $hoster_rows[0]['temperature'] * exp(-$dt / $conf['RatingTAU']);
     $rating   = $hoster_rows[0]['rating'];
     $req_this = 0;
-    
+    $rolbacktemp = $temp;
+
     if(!$lnx->IsRobot()) {
       // this is real user, so invoice is needed
       $temp   += 1 + log(1 + $cpc);
@@ -51,7 +52,7 @@ function emcLNX__updRating($host, $cpc, $routemp)  {
     $stmt = $dbh->prepare($q);
     $stmt->execute(array($rating, $temp, $req_addr, $req_sent, $host));
     // RETURN HERE
-    return array($req_addr, $req_this, $req_sent);
+    return array($req_addr, $req_this, $req_sent, $rolbacktemp);
   } catch(Exception $ex) {
     echo "emcLNX__updRating error: ". $ex->getMessage() . "\n";
     $dbh->rollBack();
@@ -107,8 +108,9 @@ function emcLNX_lnx_ref($conref, $ip) {
     $host = $lnx->emcLNX__getHost($row_contract);
     if(!$host)
       throw new Exception("missing host for: $nvs_key");
-
-    // DATA struct: array($req_addr, $req_this, $req_sent);
+ 
+    // DATA struct: array($req_addr, $req_this, $req_sent, $rolback_temp);
+    //                      0            1         2           3
     // There is started SQL transaction
     $data = emcLNX__updRating($host, $cpc, $routemp);
     if($data == 0)
@@ -128,10 +130,9 @@ function emcLNX_lnx_ref($conref, $ip) {
         $temp = $ref_row[0]['temperature'] * exp(-$dt / $conf['RatingTAU']) + (($data[1] > 0)? 1 : 0);
 
 	if($temp > $conf['max_ref_temp'] && $data[1] > 0) {
-          // Before update temp, needed restore req_sent back, increased in the emcLNX__updRating
-	  // And set zero-payment request for over-heat link
-          $stmt = $dbh->prepare("Update hoster_hosts Set req_sent=req_sent-? where host=?");
-          $stmt->execute(array($data[1], $host));
+	  // Set zero-reuqest, if temp too high; Rolback req_sent and temperature for this host
+          $stmt = $dbh->prepare("Update hoster_hosts Set req_sent=req_sent-?,temperature=? where host=?");
+          $stmt->execute(array($data[1], $data[3], $host));
 	  $data[2] -= $data[1]; $data[1] = 0;
 	}
 
