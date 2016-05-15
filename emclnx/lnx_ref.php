@@ -122,14 +122,15 @@ function emcLNX_lnx_ref($conref, $ip) {
     $cpa_addr = ""; // No CPA address by default
 
     if(!empty($ref_id)) {
-      $stmt = $dbh->prepare("Select temperature, TIME_TO_SEC(TIMEDIFF(NOW(), last_event)) as dt, cpa_addr from hoster_shares where ref_id=? for update");
+      $stmt = $dbh->prepare("Select temperature, TIME_TO_SEC(TIMEDIFF(NOW(), last_event)) as dt, cpa_addr, temp_lim from hoster_shares where ref_id=? for update");
       $stmt->execute(array($ref_id));
       $ref_row = $stmt->fetchAll(PDO::FETCH_ASSOC);
       if(sizeof($ref_row)) {
+	$temp_lim = is_null($ref_row[0]['temp_lim'])? $conf['max_ref_temp'] : $ref_row[0]['temp_lim'];
         $dt   = $ref_row[0]['dt'];
         $temp = $ref_row[0]['temperature'] * exp(-$dt / $conf['RatingTAU']) + (($data[1] > 0)? 1 : 0);
 
-	if($temp > $conf['max_ref_temp'] && $data[1] > 0) {
+	if($temp > $temp_lim && $data[1] > 0) {
 	  // Set zero-reuqest, if temp too high; Rolback req_sent and temperature for this host
           $stmt = $dbh->prepare("Update hoster_hosts Set req_sent=req_sent-?,temperature=? where host=?");
           $stmt->execute(array($data[1], $data[3], $host));

@@ -67,6 +67,7 @@ MYSQL_PWD=12345 /usr/bin/mysql -u emclnx <<EOF
     paid	float NOT NULL default 0,
     created	timestamp NOT NULL default '2000-01-01 00:00:00',
     status	int NOT NULL default 0,
+    temp_lim	float NULL,
     primary key (ref_id)
   );
 
