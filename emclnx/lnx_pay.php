@@ -171,11 +171,10 @@ $rc = emcLNX_lnx_pay($invoice, $ip, 0);
 
 $lnx->Log("\tlnx_pay($invoice) OUT:\t$rc; TX=$payment_tx" );
 
-if($rc) echo $rc;
-else { 
- if(!$ip) echo "Res=OK; TX=$payment_tx\n";
- else header("Location: " . $dest_url); /* Redirect browser */
-}
+if($ip)
+  header("Location: " . $dest_url); /* Redirect browser */
+else
+  echo "Res=$rc; TX=$payment_tx dest=$dest_url\n";
 
 //------------------------------------------------------------------------------
 
