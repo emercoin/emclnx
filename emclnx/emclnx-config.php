@@ -69,7 +69,7 @@ return [
   'dest_url'	=> "http://www.emercoin.com/",
 
   // User-specific quality treshold
-  'min_quality' => -1,
+  'min_quality' => -10,
 
   // Log file name
   'log_fname'   => '/var/log/emclnx.log', 
@@ -104,10 +104,10 @@ return [
   'credit_sigma' => 5000.0,
 
   // Extra allowance to pay - for possible desynch rating
-  'cpc_extra'	=> 0.02,
+  'cpc_extra'	=> 0.01,
 
   // Connection temperature theshold
-  'max_temp'	=> 1000,
+  'max_temp'	=> 451,
 
   // Referer temperature theshold
   'max_ref_temp'	=> 100,

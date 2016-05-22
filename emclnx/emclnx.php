@@ -379,10 +379,19 @@ class emcLNX {
 
   //------------------------------------------------------------------------------
   public function IsRobot() {
-    // Check for direct link
-    $reflen = isset($_SERVER['HTTP_REFERER'])? strlen($_SERVER['HTTP_REFERER']) : 0;
+      // Check for direct link
+    if(!$_SERVER['HTTP_REFERER'])
+	return 1; // Robot or test - no pay
+ 
+    $ref = $_SERVER['HTTP_REFERER'];
+    $reflen = strlen($_SERVER['HTTP_REFERER']);
+
     if($this->config['zero_if_direct'] && $reflen < 3)
-      return 1;
+      return 1; // Empty or invalid referer = robot
+
+    if(strpos($ref, 'easyhits4u.com') !== false)
+      return 1; // Junk
+
     return 0; // Not robot
   }
 

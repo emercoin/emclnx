@@ -83,7 +83,7 @@ function emcLNX_lnx_pay($invoice, $ip, $quality) {
       $actual_cpc = $cpc * $rating / ($rating + $conf['K4RatingSIGMA']);
     }
 
-    $quality = $hoster_rows[0]['quality'] * exp(-$dt / $lnxRatingTAU) + $quality;
+    $quality   += $hoster_rows[0]['quality'] * exp(-$dt / $lnxRatingTAU);
     $routemp    = $iptemp <= 1.0? 1.0 : sqrt($iptemp);
     $actual_cpc = sprintf("%.2f", $actual_cpc / $routemp); 
 
@@ -93,6 +93,24 @@ function emcLNX_lnx_pay($invoice, $ip, $quality) {
 
     // Check restrictions
     do {
+
+      if($pay_this > $actual_cpc + $lnxCPCExtra) {
+	$quality -= $pay_this - $actual_cpc;
+        $pay_this = $actual_cpc + $lnxCPCExtra;
+      }
+      
+      $limbal = $db_balance + $lnxCPCExtra + $pay_this;
+      if($balance > $limbal) {
+	$quality -= $balance - $limbal;
+        $balance = $limbal;
+      }
+
+      if($quality < $lnxQualityTreshold) {
+        $actual_ignore = $pay_this;
+        $rc = "Too low quality=$quality < $lnxQualityTreshold";
+        break; // Hoster asks quick and many
+      }
+ 
       if($iptemp > $lnxIPTreshold) {
         $rc = "Too high IP temperature=$iptemp > $lnxIPTreshold";
         $actual_ignore = $pay_this;
@@ -104,22 +122,7 @@ function emcLNX_lnx_pay($invoice, $ip, $quality) {
         $rc = "Too high hoster temperature=$temp > $lnxTempTreshold";
         break; // Hoster asks quick and many
       }
- 
-      if($quality < $lnxQualityTreshold) {
-        $actual_ignore = $pay_this;
-        $rc = "Too low quality=$quality < $lnxQualityTreshold";
-        break; // Hoster asks quick and many
-      }
-      
-      if($pay_this > $actual_cpc + $lnxCPCExtra) {
-        $pay_this = $actual_cpc + $lnxCPCExtra;
-      }
-      
-      $limbal = $db_balance + $lnxCPCExtra + $pay_this;
-      if($balance > $limbal) {
-        $balance = $limbal;
-      }
-
+       
       // Minimal trusted balance - min(request_bal, $limbal); Can be negative!
       $balance = sprintf("%.2f", $balance); // round to cents
 
@@ -164,7 +167,7 @@ function emcLNX_lnx_pay($invoice, $ip, $quality) {
 $invoice = $lnx->GetQS();
 $ip = $lnx->GetIP();
 
-$rc = emcLNX_lnx_pay($invoice, $ip, 1);
+$rc = emcLNX_lnx_pay($invoice, $ip, 0);
 
 $lnx->Log("\tlnx_pay($invoice) OUT:\t$rc; TX=$payment_tx" );
 
