@@ -160,7 +160,7 @@ function emcLNX_lnx_ref($conref, $ip) {
     }
     // - for testing ---  $dbh->rollBack();
     // format: Pay_addr:this_amount:balance:allowance_credit [:CPA_ADDRESS]
-    $data[3] = sprintf(":%.2f", $credit); // rolback_temp->credit
+    $data[3] = sprintf("%.2f", $credit); // rolback_temp->credit
     $rc = $row_contract['URL'][0] . $nvs_key . ':'. join(':', $data);
     if(!empty($cpa_addr)) 
       $rc .= ':' . $cpa_addr;
