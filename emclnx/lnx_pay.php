@@ -101,7 +101,7 @@ function emcLNX_lnx_pay($invoice, $ip, $quality) {
       
       $limbal = $db_balance + $lnxCPCExtra + $pay_this;
       if($balance > $limbal) {
-	$quality -= $balance - $limbal;
+//	$quality -= $balance - $limbal;
         $balance = $limbal;
       }
 
